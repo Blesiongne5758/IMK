@@ -183,8 +183,21 @@ CREATE TABLE public.event_registrations (
   phone TEXT,
   company TEXT,
   position TEXT,
+  qr_code TEXT UNIQUE NOT NULL,
+  checked_in BOOLEAN DEFAULT false,
+  checked_in_at TIMESTAMPTZ,
   registered_at TIMESTAMPTZ DEFAULT NOW(),
   UNIQUE(event_id, email)
+);
+
+-- 14. EVENT COMMITTEES TABLE
+CREATE TABLE public.event_committees (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID REFERENCES public.events(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  role TEXT NOT NULL CHECK (role IN ('scanner', 'organizer')),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(event_id, user_id)
 );
 
 -- ============================================
@@ -212,6 +225,11 @@ CREATE INDEX idx_events_is_published ON public.events(is_published);
 CREATE INDEX idx_events_category ON public.events(category);
 CREATE INDEX idx_event_registrations_event_id ON public.event_registrations(event_id);
 CREATE INDEX idx_event_registrations_user_id ON public.event_registrations(user_id);
+CREATE INDEX idx_event_registrations_qr_code ON public.event_registrations(qr_code);
+CREATE INDEX idx_event_registrations_checked_in ON public.event_registrations(checked_in);
+CREATE INDEX idx_event_committees_event_id ON public.event_committees(event_id);
+CREATE INDEX idx_event_committees_user_id ON public.event_committees(user_id);
+CREATE INDEX idx_event_committees_role ON public.event_committees(role);
 
 -- ============================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
@@ -335,6 +353,31 @@ CREATE POLICY "Authenticated users can register for events" ON public.event_regi
 
 CREATE POLICY "Users can update own registrations" ON public.event_registrations
   FOR UPDATE USING (auth.uid() = user_id);
+
+-- Event Committees: Event creators and admins can manage, scanners can view
+CREATE POLICY "Committees visible to event stakeholders" ON public.event_committees
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.events 
+      WHERE id = event_id AND (created_by = auth.uid() OR is_published = true)
+    ) OR
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Event creators and admins can manage committees" ON public.event_committees
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.events 
+      WHERE id = event_id AND created_by = auth.uid()
+    ) OR
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
 
 -- ============================================
 -- FUNCTIONS & TRIGGERS

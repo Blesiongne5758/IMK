@@ -12,6 +12,7 @@ import EOfficeLoginPage from './pages/EOfficeLoginPage';
 import EOfficeDashboard from './pages/EOfficeDashboard';
 import LegalitasAdmin from './pages/LegalitasAdmin';
 import EventManagement from './pages/EventManagement';
+import QRScannerPage from './pages/QRScannerPage';
 
 export default function App() {
   return (
@@ -31,6 +32,7 @@ export default function App() {
             <Route path="/eoffice" element={<EOfficeDashboard />} />
             <Route path="/eoffice/legalitas" element={<LegalitasAdmin />} />
             <Route path="/eoffice/event" element={<EventManagement />} />
+            <Route path="/eoffice/qr-scanner" element={<QRScannerPage />} />
           </Routes>
         </main>
         <Footer />
