@@ -36,6 +36,20 @@ function MetricCard({ value, label, icon: Icon }: { value: string; label: string
 export default function Hero() {
   return (
     <section className="relative min-h-screen pt-16 overflow-hidden" aria-label="Hero section">
+      {/* Background Image - Smart City Future Technology */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-15"
+        style={{
+          backgroundImage: 'url(https://image.qwenlm.ai/generated-images/4c9e7e39-d7ce-4506-a5f4-4af91b4d2978/_result.png)',
+        }}
+      >
+        {/* Fallback gradient if image doesn't load */}
+        <div className="absolute inset-0 bg-gradient-to-br from-void via-surface to-void"></div>
+      </div>
+      
+      {/* Dark overlay for readability */}
+      <div className="absolute inset-0 bg-gradient-to-b from-void via-void/90 to-void"></div>
+      
       {/* Background grid */}
       <div className="absolute inset-0 bg-grid-pattern opacity-60"></div>
       
