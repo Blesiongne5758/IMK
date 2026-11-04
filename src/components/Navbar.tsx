@@ -21,10 +21,10 @@ export default function Navbar() {
           {/* Logo */}
           <a href="#" className="flex items-center gap-2.5 group">
             <div className="relative h-8 w-8 rounded-md border border-cyan/30 bg-cyan/5 flex items-center justify-center transition-colors duration-300 group-hover:border-cyan/60">
-              <span className="font-display text-sm font-bold text-cyan">N</span>
+              <span className="font-display text-[10px] font-bold text-cyan">IMK</span>
             </div>
             <span className="font-display text-lg font-semibold tracking-tight text-text-primary">
-              NexaCore
+              PT. Inti Mutiara Kreasindo
             </span>
           </a>
 

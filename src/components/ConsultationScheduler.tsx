@@ -38,7 +38,7 @@ interface FormState {
   email: string;
 }
 
-const STORAGE_KEY = 'nexacore_consultations';
+const STORAGE_KEY = 'imk_consultations';
 const MIN_GAP_MINUTES = 150; // 2.5 hours
 
 const initialForm: FormState = {
