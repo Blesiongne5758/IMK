@@ -13,6 +13,12 @@ import EOfficeDashboard from './pages/EOfficeDashboard';
 import LegalitasAdmin from './pages/LegalitasAdmin';
 import EventManagement from './pages/EventManagement';
 import QRScannerPage from './pages/QRScannerPage';
+import LowonganListPage from './pages/eoffice/LowonganListPage';
+import LowonganReportPage from './pages/eoffice/LowonganReportPage';
+import LowonganInterviewPage from './pages/eoffice/LowonganInterviewPage';
+import EventListPage from './pages/eoffice/EventListPage';
+import EventParticipantsPage from './pages/eoffice/EventParticipantsPage';
+import EventCommitteePage from './pages/eoffice/EventCommitteePage';
 
 export default function App() {
   return (
@@ -33,6 +39,12 @@ export default function App() {
             <Route path="/eoffice/legalitas" element={<LegalitasAdmin />} />
             <Route path="/eoffice/event" element={<EventManagement />} />
             <Route path="/eoffice/qr-scanner" element={<QRScannerPage />} />
+            <Route path="/eoffice/lowongan" element={<LowonganListPage />} />
+            <Route path="/eoffice/lowongan/report" element={<LowonganReportPage />} />
+            <Route path="/eoffice/lowongan/interview" element={<LowonganInterviewPage />} />
+            <Route path="/eoffice/event/list" element={<EventListPage />} />
+            <Route path="/eoffice/event/participants" element={<EventParticipantsPage />} />
+            <Route path="/eoffice/event/committee" element={<EventCommitteePage />} />
           </Routes>
         </main>
         <Footer />
