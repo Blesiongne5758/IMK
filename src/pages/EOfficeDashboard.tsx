@@ -17,7 +17,9 @@ import {
   AlertCircle,
   TrendingUp,
 } from 'lucide-react';
-import { getCurrentUser, logout, User as UserType } from '../lib/auth';
+import { getCurrentUser, logout, refreshSession, User as UserType } from '../lib/auth';
+import { isSupabaseConfigured } from '../lib/supabase';
+import { getDashboardStats, getDispositions, getNotifications, DashboardStats } from '../lib/supabase-service';
 
 interface StatCard {
   icon: React.ElementType;
@@ -40,28 +42,50 @@ export default function EOfficeDashboard() {
   const navigate = useNavigate();
   const [user, setUser] = useState<UserType | null>(null);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [stats, setStats] = useState<DashboardStats>({
+    incomingLetters: 24,
+    outgoingLetters: 18,
+    dispositions: 7,
+    todayAgendas: 5,
+  });
+  const [unreadNotifications, setUnreadNotifications] = useState(3);
 
   useEffect(() => {
-    const currentUser = getCurrentUser();
-    if (!currentUser) {
-      navigate('/eoffice/login');
-      return;
-    }
-    setUser(currentUser);
+    const checkAuth = async () => {
+      // Try to refresh session from Supabase if configured
+      const currentUser = await refreshSession();
+      if (!currentUser) {
+        navigate('/eoffice/login');
+        return;
+      }
+      setUser(currentUser);
+
+      // Fetch real data from Supabase if configured
+      if (isSupabaseConfigured) {
+        const [dashboardStats, notifications] = await Promise.all([
+          getDashboardStats(currentUser.email),
+          getNotifications(currentUser.email, true),
+        ]);
+        setStats(dashboardStats);
+        setUnreadNotifications(notifications.length);
+      }
+    };
+
+    checkAuth();
   }, [navigate]);
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout();
     navigate('/eoffice/login');
   };
 
   if (!user) return null;
 
-  const stats: StatCard[] = [
-    { icon: Mail, label: 'Surat Masuk', value: '24', change: '+12%', color: 'text-cyan' },
-    { icon: Send, label: 'Surat Keluar', value: '18', change: '+8%', color: 'text-indigo' },
-    { icon: FileText, label: 'Disposisi', value: '7', change: '+3%', color: 'text-emerald-400' },
-    { icon: Calendar, label: 'Agenda Hari Ini', value: '5', change: '2 pending', color: 'text-amber-400' },
+  const statCards: StatCard[] = [
+    { icon: Mail, label: 'Surat Masuk', value: stats.incomingLetters.toString(), change: '+12%', color: 'text-cyan' },
+    { icon: Send, label: 'Surat Keluar', value: stats.outgoingLetters.toString(), change: '+8%', color: 'text-indigo' },
+    { icon: FileText, label: 'Disposisi', value: stats.dispositions.toString(), change: '+3%', color: 'text-emerald-400' },
+    { icon: Calendar, label: 'Agenda Hari Ini', value: stats.todayAgendas.toString(), change: '2 pending', color: 'text-amber-400' },
   ];
 
   const recentItems: RecentItem[] = [
@@ -145,9 +169,11 @@ export default function EOfficeDashboard() {
               {/* Notifications */}
               <button className="relative p-2 rounded-lg border border-white/[0.08] text-text-secondary hover:text-text-primary hover:border-white/[0.15] transition-all">
                 <Bell size={18} />
-                <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-cyan text-[9px] font-bold text-void flex items-center justify-center">
-                  3
-                </span>
+                {unreadNotifications > 0 && (
+                  <span className="absolute -top-1 -right-1 w-4 h-4 rounded-full bg-cyan text-[9px] font-bold text-void flex items-center justify-center">
+                    {unreadNotifications}
+                  </span>
+                )}
               </button>
 
               {/* User Menu */}
@@ -215,7 +241,7 @@ export default function EOfficeDashboard() {
           <main className="lg:col-span-9 space-y-6">
             {/* Stats Grid */}
             <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {stats.map((stat) => (
+              {statCards.map((stat) => (
                 <div
                   key={stat.label}
                   className="border border-white/[0.06] rounded-xl bg-surface/40 p-5 transition-all duration-300 hover:border-white/[0.12]"
