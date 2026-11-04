@@ -1,67 +1,90 @@
+import { useState, useEffect } from 'react';
 import { Code, Database, Globe, Shield, Smartphone, Zap } from 'lucide-react';
+import { ProjectService } from '../lib/services';
 
-const projects = [
+interface Project {
+  id: string;
+  title: string;
+  client: string;
+  category: string;
+  description: string;
+  techStack: string[];
+  icon: string;
+  color: string;
+}
+
+// Default projects for demo/fallback
+const defaultProjects: Project[] = [
   {
-    id: 1,
+    id: '1',
     title: 'Sistem Perbankan Digital',
     client: 'Bank Central',
     category: 'Financial Technology',
     description: 'Platform perbankan digital dengan arsitektur microservices, mendukung 10 juta+ transaksi per hari dengan uptime 99.99%.',
-    tech: ['Go', 'PostgreSQL', 'Redis', 'Kubernetes'],
-    icon: Database,
+    techStack: ['Go', 'PostgreSQL', 'Redis', 'Kubernetes'],
+    icon: 'database',
     color: 'cyan',
   },
   {
-    id: 2,
+    id: '2',
     title: 'E-Commerce Enterprise',
     client: 'Retail Corp Indonesia',
     category: 'E-Commerce',
     description: 'Platform e-commerce B2B dengan integrasi payment gateway, inventory management, dan analytics dashboard real-time.',
-    tech: ['React', 'Node.js', 'MongoDB', 'AWS'],
-    icon: Globe,
+    techStack: ['React', 'Node.js', 'MongoDB', 'AWS'],
+    icon: 'globe',
     color: 'indigo',
   },
   {
-    id: 3,
+    id: '3',
     title: 'Aplikasi Mobile Kesehatan',
     client: 'Kementerian Kesehatan',
     category: 'Healthcare',
     description: 'Aplikasi mobile untuk telemedicine dengan fitur video call, e-prescription, dan integrasi dengan sistem rumah sakit.',
-    tech: ['React Native', 'Firebase', 'WebRTC'],
-    icon: Smartphone,
+    techStack: ['React Native', 'Firebase', 'WebRTC'],
+    icon: 'smartphone',
     color: 'emerald',
   },
   {
-    id: 4,
+    id: '4',
     title: 'Sistem Keamanan Siber',
     client: 'Lembaga Pemerintahan',
     category: 'Cybersecurity',
     description: 'Platform monitoring keamanan siber dengan AI-powered threat detection, SIEM integration, dan automated incident response.',
-    tech: ['Python', 'TensorFlow', 'Elasticsearch', 'Kafka'],
-    icon: Shield,
+    techStack: ['Python', 'TensorFlow', 'Elasticsearch', 'Kafka'],
+    icon: 'shield',
     color: 'red',
   },
   {
-    id: 5,
+    id: '5',
     title: 'Platform IoT Smart City',
     client: 'Pemkot Jakarta',
     category: 'IoT & Smart City',
     description: 'Sistem IoT untuk monitoring traffic, CCTV analytics, dan environmental sensors dengan dashboard real-time.',
-    tech: ['IoT', 'MQTT', 'TimescaleDB', 'Grafana'],
-    icon: Zap,
+    techStack: ['IoT', 'MQTT', 'TimescaleDB', 'Grafana'],
+    icon: 'zap',
     color: 'amber',
   },
   {
-    id: 6,
+    id: '6',
     title: 'ERP System Manufacturing',
     client: 'PT Manufaktur Jaya',
     category: 'Enterprise Resource Planning',
     description: 'Sistem ERP terintegrasi untuk manajemen produksi, supply chain, dan financial dengan modul AI forecasting.',
-    tech: ['Java', 'Spring Boot', 'Oracle', 'SAP'],
-    icon: Code,
+    techStack: ['Java', 'Spring Boot', 'Oracle', 'SAP'],
+    icon: 'code',
     color: 'purple',
   },
 ];
+
+const iconMap: Record<string, React.ElementType> = {
+  code: Code,
+  database: Database,
+  globe: Globe,
+  shield: Shield,
+  smartphone: Smartphone,
+  zap: Zap,
+};
 
 const colorClasses = {
   cyan: {
@@ -103,6 +126,27 @@ const colorClasses = {
 };
 
 export default function ShowcasePage() {
+  const [projects, setProjects] = useState<Project[]>(defaultProjects);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const fetchedProjects = await ProjectService.getPublishedProjects();
+        if (fetchedProjects.length > 0) {
+          setProjects(fetchedProjects);
+        }
+      } catch (error) {
+        console.error('Error fetching projects:', error);
+        // Use default projects on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchProjects();
+  }, []);
+
   return (
     <div className="pt-16 min-h-screen">
       {/* Hero Section */}
@@ -163,56 +207,62 @@ export default function ShowcasePage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project) => {
-              const colors = colorClasses[project.color as keyof typeof colorClasses];
-              const Icon = project.icon;
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-text-secondary">Loading projects...</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {projects.map((project) => {
+                const colors = colorClasses[project.color as keyof typeof colorClasses] || colorClasses.cyan;
+                const Icon = iconMap[project.icon] || Code;
 
-              return (
-                <div
-                  key={project.id}
-                  className={`group relative border ${colors.border} rounded-xl bg-surface/40 p-6 transition-all duration-300 ${colors.hover} hover:bg-surface/60`}
-                >
-                  {/* Icon */}
-                  <div className={`inline-flex p-3 rounded-lg ${colors.bg} mb-4`}>
-                    <Icon size={24} className={colors.text} />
-                  </div>
+                return (
+                  <div
+                    key={project.id}
+                    className={`group relative border ${colors.border} rounded-xl bg-surface/40 p-6 transition-all duration-300 ${colors.hover} hover:bg-surface/60`}
+                  >
+                    {/* Icon */}
+                    <div className={`inline-flex p-3 rounded-lg ${colors.bg} mb-4`}>
+                      <Icon size={24} className={colors.text} />
+                    </div>
 
-                  {/* Category Badge */}
-                  <div className="mb-3">
-                    <span className={`text-xs font-medium ${colors.text} uppercase tracking-wider`}>
-                      {project.category}
-                    </span>
-                  </div>
-
-                  {/* Title & Client */}
-                  <h3 className="font-display text-lg font-semibold text-text-primary mb-1">
-                    {project.title}
-                  </h3>
-                  <p className="text-sm text-text-secondary mb-3">
-                    Klien: {project.client}
-                  </p>
-
-                  {/* Description */}
-                  <p className="text-sm text-text-secondary leading-relaxed mb-4">
-                    {project.description}
-                  </p>
-
-                  {/* Tech Stack */}
-                  <div className="flex flex-wrap gap-2">
-                    {project.tech.map((tech) => (
-                      <span
-                        key={tech}
-                        className="text-xs px-2 py-1 rounded border border-white/[0.08] bg-surface-elevated/50 text-text-secondary"
-                      >
-                        {tech}
+                    {/* Category Badge */}
+                    <div className="mb-3">
+                      <span className={`text-xs font-medium ${colors.text} uppercase tracking-wider`}>
+                        {project.category}
                       </span>
-                    ))}
+                    </div>
+
+                    {/* Title & Client */}
+                    <h3 className="font-display text-lg font-semibold text-text-primary mb-1">
+                      {project.title}
+                    </h3>
+                    <p className="text-sm text-text-secondary mb-3">
+                      Klien: {project.client}
+                    </p>
+
+                    {/* Description */}
+                    <p className="text-sm text-text-secondary leading-relaxed mb-4">
+                      {project.description}
+                    </p>
+
+                    {/* Tech Stack */}
+                    <div className="flex flex-wrap gap-2">
+                      {project.techStack.map((tech) => (
+                        <span
+                          key={tech}
+                          className="text-xs px-2 py-1 rounded border border-white/[0.08] bg-surface-elevated/50 text-text-secondary"
+                        >
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
-          </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </section>
 

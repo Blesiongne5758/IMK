@@ -1,57 +1,74 @@
+import { useState, useEffect } from 'react';
 import { Calendar, Clock, MapPin, Users, ArrowRight } from 'lucide-react';
+import { EventService } from '../lib/services';
 
-const events = [
+interface Event {
+  id: string;
+  title: string;
+  description: string;
+  eventDate: string;
+  eventTime: string;
+  location: string;
+  capacity: number;
+  registered: number;
+  category: 'Conference' | 'Workshop' | 'Webinar' | 'Hackathon' | 'Meetup' | 'Training';
+  speaker?: string;
+  imageUrl?: string;
+}
+
+// Default events for demo/fallback
+const defaultEvents: Event[] = [
   {
-    id: 1,
+    id: '1',
     title: 'Tech Summit 2024: AI & Cloud Innovation',
     description: 'Konferensi teknologi tahunan membahas tren terbaru dalam AI, cloud computing, dan transformasi digital enterprise.',
-    date: '2024-03-15',
-    time: '09:00 - 17:00 WIB',
+    eventDate: '2024-03-15',
+    eventTime: '09:00 - 17:00 WIB',
     location: 'Jakarta Convention Center',
     capacity: 500,
     registered: 342,
     category: 'Conference',
     speaker: 'Dr. Ahmad Wijaya, CTO',
-    image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="200" fill="%230F0F12"%3E%3Crect width="400" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="24"%3ETech Summit 2024%3C/text%3E%3C/svg%3E',
+    imageUrl: 'image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="200" fill="%230F0F12"%3E%3Crect width="400" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="24"%3ETech Summit 2024%3C/text%3E%3C/svg%3E',
   },
   {
-    id: 2,
+    id: '2',
     title: 'Workshop: Cybersecurity Best Practices',
     description: 'Workshop intensif tentang implementasi keamanan siber untuk infrastruktur enterprise dengan hands-on lab.',
-    date: '2024-03-22',
-    time: '13:00 - 17:00 WIB',
+    eventDate: '2024-03-22',
+    eventTime: '13:00 - 17:00 WIB',
     location: 'IMK Training Center, Jakarta',
     capacity: 50,
     registered: 38,
     category: 'Workshop',
     speaker: 'Budi Hartono, Security Lead',
-    image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="200" fill="%230F0F12"%3E%3Crect width="400" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%236366F1" font-size="24"%3ECybersecurity Workshop%3C/text%3E%3C/svg%3E',
+    imageUrl: 'image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="200" fill="%230F0F12"%3E%3Crect width="400" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%236366F1" font-size="24"%3ECybersecurity Workshop%3C/text%3E%3C/svg%3E',
   },
   {
-    id: 3,
+    id: '3',
     title: 'Webinar: Microservices Architecture',
     description: 'Webinar online membahas desain arsitektur microservices yang scalable dan maintainable untuk aplikasi enterprise.',
-    date: '2024-04-05',
-    time: '14:00 - 16:00 WIB',
+    eventDate: '2024-04-05',
+    eventTime: '14:00 - 16:00 WIB',
     location: 'Online (Zoom)',
     capacity: 200,
     registered: 156,
     category: 'Webinar',
     speaker: 'Siti Rahayu, Solutions Architect',
-    image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="200" fill="%230F0F12"%3E%3Crect width="400" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2310B981" font-size="24"%3EMicroservices Webinar%3C/text%3E%3C/svg%3E',
+    imageUrl: 'image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="200" fill="%230F0F12"%3E%3Crect width="400" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2310B981" font-size="24"%3EMicroservices Webinar%3C/text%3E%3C/svg%3E',
   },
   {
-    id: 4,
+    id: '4',
     title: 'Hackathon: Build the Future',
     description: 'Kompetisi hackathon 48 jam untuk mengembangkan solusi inovatif menggunakan AI dan IoT.',
-    date: '2024-04-20',
-    time: '08:00 - 20:00 WIB',
+    eventDate: '2024-04-20',
+    eventTime: '08:00 - 20:00 WIB',
     location: 'IMK Innovation Hub, Bandung',
     capacity: 100,
     registered: 87,
     category: 'Hackathon',
     speaker: 'Tim Engineering IMK',
-    image: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="200" fill="%230F0F12"%3E%3Crect width="400" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%23F59E0B" font-size="24"%3EHackathon 2024%3C/text%3E%3C/svg%3E',
+    imageUrl: 'image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="200" fill="%230F0F12"%3E%3Crect width="400" height="200"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%23F59E0B" font-size="24"%3EHackathon 2024%3C/text%3E%3C/svg%3E',
   },
 ];
 
@@ -60,9 +77,32 @@ const categoryColors = {
   Workshop: 'bg-indigo/10 border-indigo/30 text-indigo',
   Webinar: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
   Hackathon: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
+  Meetup: 'bg-purple-500/10 border-purple-500/30 text-purple-400',
+  Training: 'bg-red-500/10 border-red-500/30 text-red-400',
 };
 
 export default function EventPage() {
+  const [events, setEvents] = useState<Event[]>(defaultEvents);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const fetchedEvents = await EventService.getPublishedEvents();
+        if (fetchedEvents.length > 0) {
+          setEvents(fetchedEvents);
+        }
+      } catch (error) {
+        console.error('Error fetching events:', error);
+        // Use default events on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchEvents();
+  }, []);
+
   return (
     <div className="pt-16 min-h-screen">
       {/* Hero Section */}
@@ -99,93 +139,101 @@ export default function EventPage() {
             </p>
           </div>
 
-          <div className="space-y-6">
-            {events.map((event) => (
-              <div
-                key={event.id}
-                className="group border border-white/[0.08] rounded-xl bg-surface/40 overflow-hidden transition-all duration-300 hover:border-cyan/30 hover:bg-surface/60"
-              >
-                <div className="grid md:grid-cols-3 gap-0">
-                  {/* Image */}
-                  <div className="relative aspect-video md:aspect-auto bg-surface-elevated overflow-hidden">
-                    <img
-                      src={event.image}
-                      alt={event.title}
-                      className="w-full h-full object-cover"
-                      draggable={false}
-                    />
-                    {/* Category Badge */}
-                    <div className="absolute top-4 left-4">
-                      <span className={`text-xs font-medium px-3 py-1.5 rounded border ${categoryColors[event.category as keyof typeof categoryColors]}`}>
-                        {event.category}
-                      </span>
-                    </div>
-                  </div>
-
-                  {/* Content */}
-                  <div className="md:col-span-2 p-6 lg:p-8">
-                    <h3 className="font-display text-xl lg:text-2xl font-semibold text-text-primary mb-3 group-hover:text-cyan transition-colors">
-                      {event.title}
-                    </h3>
-                    <p className="text-sm text-text-secondary leading-relaxed mb-4">
-                      {event.description}
-                    </p>
-
-                    {/* Event Details */}
-                    <div className="grid sm:grid-cols-2 gap-3 mb-4">
-                      <div className="flex items-center gap-2 text-sm text-text-secondary">
-                        <Calendar size={16} className="text-cyan flex-shrink-0" />
-                        <span>{new Date(event.date).toLocaleDateString('id-ID', {
-                          weekday: 'long',
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                        })}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-text-secondary">
-                        <Clock size={16} className="text-cyan flex-shrink-0" />
-                        <span>{event.time}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-text-secondary">
-                        <MapPin size={16} className="text-cyan flex-shrink-0" />
-                        <span>{event.location}</span>
-                      </div>
-                      <div className="flex items-center gap-2 text-sm text-text-secondary">
-                        <Users size={16} className="text-cyan flex-shrink-0" />
-                        <span>{event.registered} / {event.capacity} peserta</span>
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-text-secondary">Loading events...</p>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {events.map((event) => (
+                <div
+                  key={event.id}
+                  className="group border border-white/[0.08] rounded-xl bg-surface/40 overflow-hidden transition-all duration-300 hover:border-cyan/30 hover:bg-surface/60"
+                >
+                  <div className="grid md:grid-cols-3 gap-0">
+                    {/* Image */}
+                    <div className="relative aspect-video md:aspect-auto bg-surface-elevated overflow-hidden">
+                      <img
+                        src={event.imageUrl}
+                        alt={event.title}
+                        className="w-full h-full object-cover"
+                        draggable={false}
+                      />
+                      {/* Category Badge */}
+                      <div className="absolute top-4 left-4">
+                        <span className={`text-xs font-medium px-3 py-1.5 rounded border ${categoryColors[event.category as keyof typeof categoryColors]}`}>
+                          {event.category}
+                        </span>
                       </div>
                     </div>
 
-                    {/* Speaker */}
-                    <div className="mb-4">
-                      <span className="text-xs text-text-secondary uppercase tracking-wider">Speaker:</span>
-                      <p className="text-sm text-text-primary font-medium">{event.speaker}</p>
-                    </div>
+                    {/* Content */}
+                    <div className="md:col-span-2 p-6 lg:p-8">
+                      <h3 className="font-display text-xl lg:text-2xl font-semibold text-text-primary mb-3 group-hover:text-cyan transition-colors">
+                        {event.title}
+                      </h3>
+                      <p className="text-sm text-text-secondary leading-relaxed mb-4">
+                        {event.description}
+                      </p>
 
-                    {/* Capacity Bar */}
-                    <div className="mb-4">
-                      <div className="flex items-center justify-between text-xs text-text-secondary mb-1">
-                        <span>Kapasitas Terisi</span>
-                        <span>{Math.round((event.registered / event.capacity) * 100)}%</span>
+                      {/* Event Details */}
+                      <div className="grid sm:grid-cols-2 gap-3 mb-4">
+                        <div className="flex items-center gap-2 text-sm text-text-secondary">
+                          <Calendar size={16} className="text-cyan flex-shrink-0" />
+                          <span>{new Date(event.eventDate).toLocaleDateString('id-ID', {
+                            weekday: 'long',
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          })}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-text-secondary">
+                          <Clock size={16} className="text-cyan flex-shrink-0" />
+                          <span>{event.eventTime}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-text-secondary">
+                          <MapPin size={16} className="text-cyan flex-shrink-0" />
+                          <span>{event.location}</span>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-text-secondary">
+                          <Users size={16} className="text-cyan flex-shrink-0" />
+                          <span>{event.registered} / {event.capacity} peserta</span>
+                        </div>
                       </div>
-                      <div className="h-2 bg-surface-elevated rounded-full overflow-hidden">
-                        <div
-                          className="h-full bg-gradient-to-r from-cyan to-indigo rounded-full transition-all duration-500"
-                          style={{ width: `${(event.registered / event.capacity) * 100}%` }}
-                        ></div>
-                      </div>
-                    </div>
 
-                    {/* Register Button */}
-                    <button className="inline-flex items-center gap-2 rounded-lg bg-cyan px-6 py-2.5 text-sm font-semibold text-void transition-all duration-300 hover:bg-cyan/90 hover:scale-[1.02]">
-                      Daftar Sekarang
-                      <ArrowRight size={16} />
-                    </button>
+                      {/* Speaker */}
+                      {event.speaker && (
+                        <div className="mb-4">
+                          <span className="text-xs text-text-secondary uppercase tracking-wider">Speaker:</span>
+                          <p className="text-sm text-text-primary font-medium">{event.speaker}</p>
+                        </div>
+                      )}
+
+                      {/* Capacity Bar */}
+                      <div className="mb-4">
+                        <div className="flex items-center justify-between text-xs text-text-secondary mb-1">
+                          <span>Kapasitas Terisi</span>
+                          <span>{Math.round((event.registered / event.capacity) * 100)}%</span>
+                        </div>
+                        <div className="h-2 bg-surface-elevated rounded-full overflow-hidden">
+                          <div
+                            className="h-full bg-gradient-to-r from-cyan to-indigo rounded-full transition-all duration-500"
+                            style={{ width: `${(event.registered / event.capacity) * 100}%` }}
+                          ></div>
+                        </div>
+                      </div>
+
+                      {/* Register Button */}
+                      <button className="inline-flex items-center gap-2 rounded-lg bg-cyan px-6 py-2.5 text-sm font-semibold text-void transition-all duration-300 hover:bg-cyan/90 hover:scale-[1.02]">
+                        Daftar Sekarang
+                        <ArrowRight size={16} />
+                      </button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
