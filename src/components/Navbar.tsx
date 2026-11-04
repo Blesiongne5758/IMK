@@ -4,8 +4,8 @@ import { Menu, X } from 'lucide-react';
 
 const navLinks = [
   { label: 'Layanan', href: '/#services' },
-  { label: 'Infrastruktur', href: '/#infrastructure' },
-  { label: 'Kapabilitas', href: '/#capability' },
+  { label: 'Showcase', href: '/showcase' },
+  { label: 'Event', href: '/event' },
   { label: 'Legalitas', href: '/legalitas' },
 ];
 

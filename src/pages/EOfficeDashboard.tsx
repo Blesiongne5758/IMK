@@ -10,6 +10,7 @@ import {
   Bell,
   LogOut,
   User,
+  Users,
   Search,
   Plus,
   Clock,
@@ -140,6 +141,7 @@ export default function EOfficeDashboard() {
     { id: 'agenda', label: 'Agenda', icon: Calendar },
     { id: 'archive', label: 'Arsip Digital', icon: Archive },
     { id: 'legalitas', label: 'Legalitas', icon: Shield },
+    { id: 'event', label: 'Event', icon: Users },
   ];
 
   return (
@@ -211,6 +213,22 @@ export default function EOfficeDashboard() {
                     <Link
                       key={item.id}
                       to="/eoffice/legalitas"
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === item.id
+                          ? 'bg-cyan/10 border border-cyan/30 text-cyan'
+                          : 'text-text-secondary hover:text-text-primary hover:bg-surface-elevated/50 border border-transparent'
+                      }`}
+                    >
+                      <item.icon size={18} />
+                      {item.label}
+                    </Link>
+                  );
+                }
+                if (item.id === 'event') {
+                  return (
+                    <Link
+                      key={item.id}
+                      to="/eoffice/event"
                       className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                         activeTab === item.id
                           ? 'bg-cyan/10 border border-cyan/30 text-cyan'

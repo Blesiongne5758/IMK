@@ -154,6 +154,39 @@ CREATE TABLE public.organization_structure (
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 12. EVENTS TABLE
+CREATE TABLE public.events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  event_date DATE NOT NULL,
+  event_time TEXT NOT NULL,
+  location TEXT NOT NULL,
+  capacity INTEGER DEFAULT 0,
+  registered INTEGER DEFAULT 0,
+  category TEXT NOT NULL CHECK (category IN ('Conference', 'Workshop', 'Webinar', 'Hackathon', 'Meetup', 'Training')),
+  speaker TEXT,
+  image_url TEXT,
+  is_published BOOLEAN DEFAULT true,
+  created_by UUID REFERENCES public.profiles(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 13. EVENT REGISTRATIONS TABLE
+CREATE TABLE public.event_registrations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  event_id UUID REFERENCES public.events(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES public.profiles(id) ON DELETE CASCADE,
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  company TEXT,
+  position TEXT,
+  registered_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(event_id, email)
+);
+
 -- ============================================
 -- INDEXES FOR PERFORMANCE
 -- ============================================
@@ -174,6 +207,11 @@ CREATE INDEX idx_legal_documents_category ON public.legal_documents(category);
 CREATE INDEX idx_legal_documents_is_public ON public.legal_documents(is_public);
 CREATE INDEX idx_organization_structure_level ON public.organization_structure(level);
 CREATE INDEX idx_organization_structure_parent ON public.organization_structure(parent_id);
+CREATE INDEX idx_events_event_date ON public.events(event_date);
+CREATE INDEX idx_events_is_published ON public.events(is_published);
+CREATE INDEX idx_events_category ON public.events(category);
+CREATE INDEX idx_event_registrations_event_id ON public.event_registrations(event_id);
+CREATE INDEX idx_event_registrations_user_id ON public.event_registrations(user_id);
 
 -- ============================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
@@ -188,6 +226,8 @@ ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.legal_documents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.company_info ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.organization_structure ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.event_registrations ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: Users can read all profiles, update only their own
 CREATE POLICY "Profiles are viewable by everyone" ON public.profiles
@@ -255,6 +295,47 @@ CREATE POLICY "Admins can manage organization structure" ON public.organization_
     )
   );
 
+-- Events: Published events viewable by everyone, admins can manage all
+CREATE POLICY "Published events are viewable by everyone" ON public.events
+  FOR SELECT USING (is_published = true OR auth.role() = 'authenticated');
+
+CREATE POLICY "Authenticated users can create events" ON public.events
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+CREATE POLICY "Creators and admins can update events" ON public.events
+  FOR UPDATE USING (
+    auth.uid() = created_by OR
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Creators and admins can delete events" ON public.events
+  FOR DELETE USING (
+    auth.uid() = created_by OR
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+-- Event Registrations: Users can view their own, admins can view all
+CREATE POLICY "Users can view own registrations" ON public.event_registrations
+  FOR SELECT USING (
+    auth.uid() = user_id OR
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Authenticated users can register for events" ON public.event_registrations
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+CREATE POLICY "Users can update own registrations" ON public.event_registrations
+  FOR UPDATE USING (auth.uid() = user_id);
+
 -- ============================================
 -- FUNCTIONS & TRIGGERS
 -- ============================================
@@ -294,6 +375,10 @@ CREATE TRIGGER update_company_info_updated_at
 
 CREATE TRIGGER update_organization_structure_updated_at
   BEFORE UPDATE ON public.organization_structure
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_events_updated_at
+  BEFORE UPDATE ON public.events
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Auto-create profile on user signup

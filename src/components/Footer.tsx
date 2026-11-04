@@ -22,13 +22,31 @@ export default function Footer() {
           <div>
             <h4 className="text-xs font-semibold text-text-primary uppercase tracking-widest mb-4">Layanan</h4>
             <ul className="space-y-2.5">
-              {['Custom Software', 'Mobile & Web App', 'AI Integration', 'Cloud & DevOps', 'Security Audit'].map((item) => (
-                <li key={item}>
-                  <Link to="/#services" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
-                    {item}
-                  </Link>
-                </li>
-              ))}
+              <li>
+                <Link to="/#services" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Custom Software
+                </Link>
+              </li>
+              <li>
+                <Link to="/#services" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Mobile & Web App
+                </Link>
+              </li>
+              <li>
+                <Link to="/#services" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  AI Integration
+                </Link>
+              </li>
+              <li>
+                <Link to="/showcase" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Showcase
+                </Link>
+              </li>
+              <li>
+                <Link to="/event" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Event
+                </Link>
+              </li>
             </ul>
           </div>
 
