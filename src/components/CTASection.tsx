@@ -1,6 +1,22 @@
 import { ArrowRight } from 'lucide-react';
 
-export default function CTASection() {
+interface CTASectionProps {
+  onScheduleClick: () => void;
+}
+
+export default function CTASection({ onScheduleClick }: CTASectionProps) {
+  function handleScheduleClick(e: React.MouseEvent<HTMLAnchorElement>) {
+    e.preventDefault();
+    onScheduleClick();
+    // Scroll ke section scheduler
+    setTimeout(() => {
+      const el = document.getElementById('scheduler');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }
+
   return (
     <section id="contact" className="relative py-24 lg:py-32 border-t border-white/[0.04]" aria-label="Call to action">
       {/* Background accent */}
@@ -29,7 +45,8 @@ export default function CTASection() {
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
             <a
-              href="#"
+              href="#scheduler"
+              onClick={handleScheduleClick}
               className="inline-flex items-center gap-2.5 rounded-lg bg-cyan px-8 py-4 text-sm font-semibold text-void transition-all duration-300 hover:bg-cyan/90 hover:scale-[1.02]"
             >
               Jadwalkan Konsultasi Arsitektur
