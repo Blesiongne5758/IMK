@@ -1,4 +1,5 @@
 import { ArrowRight, Shield, Cpu, Globe } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
 function StatusIndicator({ label, status }: { label: string; status: 'active' | 'stable' | 'secure' }) {
   const colors = {
@@ -75,13 +76,13 @@ export default function Hero() {
 
             {/* CTA */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <a
-                href="#contact"
+              <Link
+                to="/jadwal"
                 className="inline-flex items-center gap-2.5 rounded-lg bg-cyan px-6 py-3.5 text-sm font-semibold text-void transition-all duration-300 hover:bg-cyan/90 hover:scale-[1.02]"
               >
                 Konsultasikan Arsitektur Proyek Anda
                 <ArrowRight size={16} />
-              </a>
+              </Link>
               <a
                 href="#services"
                 className="inline-flex items-center gap-2 rounded-lg border border-white/[0.1] px-6 py-3.5 text-sm font-medium text-text-secondary transition-all duration-300 hover:border-white/[0.2] hover:text-text-primary"

@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export default function Footer() {
   return (
     <footer className="border-t border-white/[0.06] py-16" aria-label="Footer">
@@ -22,9 +24,9 @@ export default function Footer() {
             <ul className="space-y-2.5">
               {['Custom Software', 'Mobile & Web App', 'AI Integration', 'Cloud & DevOps', 'Security Audit'].map((item) => (
                 <li key={item}>
-                  <a href="#services" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  <Link to="/#services" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
                     {item}
-                  </a>
+                  </Link>
                 </li>
               ))}
             </ul>
@@ -34,13 +36,31 @@ export default function Footer() {
           <div>
             <h4 className="text-xs font-semibold text-text-primary uppercase tracking-widest mb-4">Perusahaan</h4>
             <ul className="space-y-2.5">
-              {['Tentang Kami', 'Tim Engineering', 'Karir', 'Blog Teknis', 'Case Studies'].map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link to="/" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Tentang Kami
+                </Link>
+              </li>
+              <li>
+                <Link to="/" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Tim Engineering
+                </Link>
+              </li>
+              <li>
+                <Link to="/lowongan" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Karir
+                </Link>
+              </li>
+              <li>
+                <Link to="/" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Blog Teknis
+                </Link>
+              </li>
+              <li>
+                <Link to="/" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Case Studies
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -48,13 +68,31 @@ export default function Footer() {
           <div>
             <h4 className="text-xs font-semibold text-text-primary uppercase tracking-widest mb-4">Resources</h4>
             <ul className="space-y-2.5">
-              {['Documentation', 'API Reference', 'Security Whitepaper', 'Architecture Guide', 'Status Page'].map((item) => (
-                <li key={item}>
-                  <a href="#" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
-                    {item}
-                  </a>
-                </li>
-              ))}
+              <li>
+                <Link to="/" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Documentation
+                </Link>
+              </li>
+              <li>
+                <Link to="/" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  API Reference
+                </Link>
+              </li>
+              <li>
+                <Link to="/" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Security Whitepaper
+                </Link>
+              </li>
+              <li>
+                <Link to="/" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Architecture Guide
+                </Link>
+              </li>
+              <li>
+                <Link to="/jadwal" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Status Page
+                </Link>
+              </li>
             </ul>
           </div>
 
@@ -75,9 +113,9 @@ export default function Footer() {
             © 2024 PT. Inti Mutiara Kreasindo. All rights reserved. ISO 27001 & SOC 2 Certified.
           </p>
           <div className="flex items-center gap-6">
-            <a href="#" className="text-xs text-text-secondary hover:text-text-primary transition-colors">Privacy Policy</a>
-            <a href="#" className="text-xs text-text-secondary hover:text-text-primary transition-colors">Terms of Service</a>
-            <a href="#" className="text-xs text-text-secondary hover:text-text-primary transition-colors">Security</a>
+            <Link to="/" className="text-xs text-text-secondary hover:text-text-primary transition-colors">Privacy Policy</Link>
+            <Link to="/" className="text-xs text-text-secondary hover:text-text-primary transition-colors">Terms of Service</Link>
+            <Link to="/" className="text-xs text-text-secondary hover:text-text-primary transition-colors">Security</Link>
           </div>
         </div>
       </div>

@@ -1,22 +1,7 @@
 import { ArrowRight } from 'lucide-react';
+import { Link } from 'react-router-dom';
 
-interface CTASectionProps {
-  onScheduleClick: () => void;
-}
-
-export default function CTASection({ onScheduleClick }: CTASectionProps) {
-  function handleScheduleClick(e: React.MouseEvent<HTMLAnchorElement>) {
-    e.preventDefault();
-    onScheduleClick();
-    // Scroll ke section scheduler
-    setTimeout(() => {
-      const el = document.getElementById('scheduler');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }, 100);
-  }
-
+export default function CTASection() {
   return (
     <section id="contact" className="relative py-24 lg:py-32 border-t border-white/[0.04]" aria-label="Call to action">
       {/* Background accent */}
@@ -44,14 +29,13 @@ export default function CTASection({ onScheduleClick }: CTASectionProps) {
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <a
-              href="#scheduler"
-              onClick={handleScheduleClick}
+            <Link
+              to="/jadwal"
               className="inline-flex items-center gap-2.5 rounded-lg bg-cyan px-8 py-4 text-sm font-semibold text-void transition-all duration-300 hover:bg-cyan/90 hover:scale-[1.02]"
             >
               Jadwalkan Konsultasi Arsitektur
               <ArrowRight size={16} />
-            </a>
+            </Link>
             <a
               href="#"
               className="inline-flex items-center gap-2 rounded-lg border border-white/[0.1] px-8 py-4 text-sm font-medium text-text-secondary transition-all duration-300 hover:border-white/[0.2] hover:text-text-primary"

@@ -97,12 +97,7 @@ function getFirstDayOfMonth(year: number, month: number): number {
   return new Date(year, month, 1).getDay();
 }
 
-interface ConsultationSchedulerProps {
-  isModalOpen: boolean;
-  onModalClose: () => void;
-}
-
-export default function ConsultationScheduler({ isModalOpen: externalOpen, onModalClose }: ConsultationSchedulerProps) {
+export default function ConsultationScheduler() {
   const [consultations, setConsultations] = useState<Consultation[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [form, setForm] = useState<FormState>(initialForm);
@@ -137,16 +132,6 @@ export default function ConsultationScheduler({ isModalOpen: externalOpen, onMod
       // ignore
     }
   }, [consultations]);
-
-  // Sync external open state
-  useEffect(() => {
-    if (externalOpen) {
-      setForm({ ...initialForm, date: selectedDate || todayStr });
-      setErrors({});
-      setConflictMessage('');
-      setIsModalOpen(true);
-    }
-  }, [externalOpen]);
 
   // Map date -> consultations
   const consultationsByDate = useMemo(() => {
@@ -214,7 +199,6 @@ export default function ConsultationScheduler({ isModalOpen: externalOpen, onMod
   function closeModal() {
     setIsModalOpen(false);
     setConflictMessage('');
-    onModalClose();
   }
 
   function validate(): boolean {
