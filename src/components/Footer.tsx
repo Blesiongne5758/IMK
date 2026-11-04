@@ -42,8 +42,8 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
-                  Tim Engineering
+                <Link to="/legalitas" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Legalitas
                 </Link>
               </li>
               <li>

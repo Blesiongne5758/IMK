@@ -6,7 +6,7 @@ const navLinks = [
   { label: 'Layanan', href: '/#services' },
   { label: 'Infrastruktur', href: '/#infrastructure' },
   { label: 'Kapabilitas', href: '/#capability' },
-  { label: 'Proses', href: '/#process' },
+  { label: 'Legalitas', href: '/legalitas' },
 ];
 
 export default function Navbar() {

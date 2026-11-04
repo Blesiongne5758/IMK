@@ -116,6 +116,44 @@ CREATE TABLE public.activity_logs (
   created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
+-- 9. LEGAL DOCUMENTS TABLE
+CREATE TABLE public.legal_documents (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  description TEXT NOT NULL,
+  category TEXT NOT NULL CHECK (category IN ('legal', 'certificate', 'organization', 'photo')),
+  image_url TEXT NOT NULL,
+  document_number TEXT,
+  issued_date DATE,
+  expiry_date DATE,
+  is_public BOOLEAN DEFAULT true,
+  created_by UUID REFERENCES public.profiles(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 10. COMPANY INFORMATION TABLE
+CREATE TABLE public.company_info (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  key TEXT UNIQUE NOT NULL,
+  value TEXT NOT NULL,
+  updated_by UUID REFERENCES public.profiles(id),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 11. ORGANIZATION STRUCTURE TABLE
+CREATE TABLE public.organization_structure (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  level INTEGER NOT NULL,
+  title TEXT NOT NULL,
+  full_name TEXT NOT NULL,
+  avatar TEXT,
+  parent_id UUID REFERENCES public.organization_structure(id) ON DELETE SET NULL,
+  order_index INTEGER DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ============================================
 -- INDEXES FOR PERFORMANCE
 -- ============================================
@@ -132,6 +170,10 @@ CREATE INDEX idx_notifications_user_id ON public.notifications(user_id);
 CREATE INDEX idx_notifications_is_read ON public.notifications(is_read);
 CREATE INDEX idx_activity_logs_user_id ON public.activity_logs(user_id);
 CREATE INDEX idx_activity_logs_created_at ON public.activity_logs(created_at);
+CREATE INDEX idx_legal_documents_category ON public.legal_documents(category);
+CREATE INDEX idx_legal_documents_is_public ON public.legal_documents(is_public);
+CREATE INDEX idx_organization_structure_level ON public.organization_structure(level);
+CREATE INDEX idx_organization_structure_parent ON public.organization_structure(parent_id);
 
 -- ============================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
@@ -143,6 +185,9 @@ ALTER TABLE public.agendas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.archives ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.notifications ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.legal_documents ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.company_info ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.organization_structure ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: Users can read all profiles, update only their own
 CREATE POLICY "Profiles are viewable by everyone" ON public.profiles
@@ -174,6 +219,42 @@ CREATE POLICY "Users can view own notifications" ON public.notifications
 CREATE POLICY "Users can update own notifications" ON public.notifications
   FOR UPDATE USING (auth.uid() = user_id);
 
+-- Legal Documents: Public docs viewable by anyone, private by admins
+CREATE POLICY "Public legal documents are viewable by everyone" ON public.legal_documents
+  FOR SELECT USING (is_public = true OR auth.role() = 'authenticated');
+
+CREATE POLICY "Admins can manage legal documents" ON public.legal_documents
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+-- Company Info: Public view, admin edit
+CREATE POLICY "Company info is viewable by everyone" ON public.company_info
+  FOR SELECT USING (true);
+
+CREATE POLICY "Admins can manage company info" ON public.company_info
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+-- Organization Structure: Public view, admin edit
+CREATE POLICY "Organization structure is viewable by everyone" ON public.organization_structure
+  FOR SELECT USING (true);
+
+CREATE POLICY "Admins can manage organization structure" ON public.organization_structure
+  FOR ALL USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
 -- ============================================
 -- FUNCTIONS & TRIGGERS
 -- ============================================
@@ -201,6 +282,18 @@ CREATE TRIGGER update_dispositions_updated_at
 
 CREATE TRIGGER update_agendas_updated_at
   BEFORE UPDATE ON public.agendas
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_legal_documents_updated_at
+  BEFORE UPDATE ON public.legal_documents
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_company_info_updated_at
+  BEFORE UPDATE ON public.company_info
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_organization_structure_updated_at
+  BEFORE UPDATE ON public.organization_structure
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Auto-create profile on user signup

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import {
   Mail,
   MailOpen,
@@ -16,6 +16,7 @@ import {
   CheckCircle,
   AlertCircle,
   TrendingUp,
+  Shield,
 } from 'lucide-react';
 import { getCurrentUser, logout, refreshSession, User as UserType } from '../lib/auth';
 import { isSupabaseConfigured } from '../lib/supabase';
@@ -138,6 +139,7 @@ export default function EOfficeDashboard() {
     { id: 'disposition', label: 'Disposisi', icon: FileText },
     { id: 'agenda', label: 'Agenda', icon: Calendar },
     { id: 'archive', label: 'Arsip Digital', icon: Archive },
+    { id: 'legalitas', label: 'Legalitas', icon: Shield },
   ];
 
   return (
@@ -203,20 +205,38 @@ export default function EOfficeDashboard() {
           {/* Sidebar Menu */}
           <aside className="lg:col-span-3">
             <nav className="border border-white/[0.08] rounded-xl bg-surface/40 p-4 space-y-1">
-              {menuItems.map((item) => (
-                <button
-                  key={item.id}
-                  onClick={() => setActiveTab(item.id)}
-                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
-                    activeTab === item.id
-                      ? 'bg-cyan/10 border border-cyan/30 text-cyan'
-                      : 'text-text-secondary hover:text-text-primary hover:bg-surface-elevated/50 border border-transparent'
-                  }`}
-                >
-                  <item.icon size={18} />
-                  {item.label}
-                </button>
-              ))}
+              {menuItems.map((item) => {
+                if (item.id === 'legalitas') {
+                  return (
+                    <Link
+                      key={item.id}
+                      to="/eoffice/legalitas"
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                        activeTab === item.id
+                          ? 'bg-cyan/10 border border-cyan/30 text-cyan'
+                          : 'text-text-secondary hover:text-text-primary hover:bg-surface-elevated/50 border border-transparent'
+                      }`}
+                    >
+                      <item.icon size={18} />
+                      {item.label}
+                    </Link>
+                  );
+                }
+                return (
+                  <button
+                    key={item.id}
+                    onClick={() => setActiveTab(item.id)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
+                      activeTab === item.id
+                        ? 'bg-cyan/10 border border-cyan/30 text-cyan'
+                        : 'text-text-secondary hover:text-text-primary hover:bg-surface-elevated/50 border border-transparent'
+                    }`}
+                  >
+                    <item.icon size={18} />
+                    {item.label}
+                  </button>
+                );
+              })}
             </nav>
 
             {/* User Info Card */}

@@ -72,3 +72,45 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: #2a2a30;
 }
+
+/* Anti-screenshot protection for legal documents */
+.protected-content {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+  pointer-events: none;
+}
+
+.protected-content img {
+  pointer-events: none;
+  -webkit-user-drag: none;
+  -khtml-user-drag: none;
+  -moz-user-drag: none;
+  -o-user-drag: none;
+  user-drag: none;
+}
+
+/* Print protection */
+@media print {
+  .protected-content,
+  .protected-content * {
+    display: none !important;
+  }
+  
+  body::before {
+    content: "Dokumen ini dilindungi. Print tidak diizinkan.";
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-size: 24px;
+    color: #000;
+    text-align: center;
+  }
+}
