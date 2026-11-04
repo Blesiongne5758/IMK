@@ -11,10 +11,10 @@ export default function Footer() {
               <Logo variant="icon" size={32} />
               <div className="flex flex-col">
                 <span className="font-display text-sm font-semibold text-text-primary leading-tight">
-                  Inti Mutiara Berlian
+                  Inti Mutiara Kreasindo
                 </span>
                 <span className="text-[8px] text-text-secondary/50 uppercase tracking-[0.2em] leading-none mt-0.5">
-                  PT Inti Mutiara Kreasindo
+                  Technology & AI Solutions
                 </span>
               </div>
             </div>

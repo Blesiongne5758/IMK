@@ -5,14 +5,14 @@ interface LogoProps {
 }
 
 /**
- * Logo "Inti Mutiara Berlian" — Premium SVG Mark
+ * Logo "Inti Mutiara Kreasindo" — Premium SVG Mark
  * 
  * Design Philosophy:
  * - Diamond (berlian) as the sacred geometric form — precision & value
  * - Faceted cuts representing multi-dimensional engineering capability
  * - Inner light refraction symbolizing clarity, intelligence & transparency
  * - The pearl (mutiara) at the apex — rarity, perfection, the "inti" (core)
- * - Monogram "IMB" integrated within the architecture of the gem
+ * - Monogram "IMK" integrated within the architecture of the gem
  * - Dual gradient: Cyan (technology) → Indigo (trust & stability)
  * 
  * The mark works at any size from 24px favicon to 200px+ hero display.
@@ -24,7 +24,7 @@ export default function Logo({ variant = 'icon', size = 40, className = '' }: Lo
         <Logo variant="icon" size={size} />
         <div className="flex flex-col">
           <span className="font-display text-base font-semibold tracking-tight text-text-primary leading-tight">
-            Inti Mutiara Berlian
+            Inti Mutiara Kreasindo
           </span>
           <span className="text-[9px] text-text-secondary/60 uppercase tracking-[0.2em] leading-none mt-0.5">
             Technology & AI Solutions
@@ -40,12 +40,12 @@ export default function Logo({ variant = 'icon', size = 40, className = '' }: Lo
         <Logo variant="icon" size={72} />
         <div className="text-center">
           <span className="font-display text-2xl font-bold tracking-tight text-text-primary block">
-            Inti Mutiara Berlian
+            Inti Mutiara Kreasindo
           </span>
           <div className="flex items-center justify-center gap-2 mt-2">
             <span className="w-6 h-px bg-cyan/30"></span>
             <span className="text-[10px] text-text-secondary/70 uppercase tracking-[0.3em]">
-              PT Inti Mutiara Kreasindo
+              Technology & AI Solutions
             </span>
             <span className="w-6 h-px bg-cyan/30"></span>
           </div>
@@ -60,12 +60,12 @@ export default function Logo({ variant = 'icon', size = 40, className = '' }: Lo
         <Logo variant="icon" size={96} />
         <div className="text-center space-y-2">
           <h1 className="font-display text-3xl sm:text-4xl font-bold tracking-tight text-text-primary">
-            Inti Mutiara Berlian
+            Inti Mutiara Kreasindo
           </h1>
           <div className="flex items-center justify-center gap-3">
             <span className="w-10 h-px bg-gradient-to-r from-transparent to-cyan/40"></span>
             <span className="text-xs text-text-secondary/70 uppercase tracking-[0.3em] font-medium">
-              PT Inti Mutiara Kreasindo
+              Technology & AI Solutions
             </span>
             <span className="w-10 h-px bg-gradient-to-l from-transparent to-cyan/40"></span>
           </div>
@@ -86,7 +86,7 @@ export default function Logo({ variant = 'icon', size = 40, className = '' }: Lo
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       className={`transition-all duration-300 ${className}`}
-      aria-label="Inti Mutiara Berlian — Logo"
+      aria-label="Inti Mutiara Kreasindo — Logo"
       role="img"
     >
       <defs>
@@ -174,7 +174,7 @@ export default function Logo({ variant = 'icon', size = 40, className = '' }: Lo
       {/* Pearl secondary highlight */}
       <circle cx="61.5" cy="27" r="0.8" fill="rgba(255,255,255,0.3)" />
 
-      {/* === MONOGRAM "IMB" — integrated into the pavilion === */}
+      {/* === MONOGRAM "IMK" — integrated into the pavilion === */}
       {/* Letter "I" — center pillar */}
       <rect x="57.5" y="50" width="5" height="32" rx="1" fill="url(#logo-text)" />
       {/* I serifs */}
@@ -191,7 +191,7 @@ export default function Logo({ variant = 'icon', size = 40, className = '' }: Lo
         fill="none"
       />
 
-      {/* Letter "B" — right wing */}
+      {/* Letter "K" — right wing */}
       <path
         d="M76 54 L76 82"
         stroke="url(#logo-text)"
@@ -200,19 +200,17 @@ export default function Logo({ variant = 'icon', size = 40, className = '' }: Lo
         fill="none"
       />
       <path
-        d="M76 54 L84 54 Q90 54 90 60 Q90 66 84 66 L76 66"
+        d="M76 68 L90 54"
         stroke="url(#logo-text)"
-        strokeWidth="2.5"
+        strokeWidth="3"
         strokeLinecap="round"
-        strokeLinejoin="round"
         fill="none"
       />
       <path
-        d="M76 66 L85 66 Q92 66 92 73 Q92 82 84 82 L76 82"
+        d="M80 64 L92 82"
         stroke="url(#logo-text)"
-        strokeWidth="2.5"
+        strokeWidth="3"
         strokeLinecap="round"
-        strokeLinejoin="round"
         fill="none"
       />
 

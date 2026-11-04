@@ -18,7 +18,7 @@ export default function BrandShowcase() {
           
           {/* Brand name */}
           <h2 className="font-display text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-text-primary mb-3">
-            Inti Mutiara Berlian
+            Inti Mutiara Kreasindo
           </h2>
           
           {/* Decorative divider */}
