@@ -1,5 +1,6 @@
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
+import BrandShowcase from './components/BrandShowcase';
 import Services from './components/Services';
 import Infrastructure from './components/Infrastructure';
 import Capability from './components/Capability';
@@ -13,6 +14,7 @@ export default function App() {
       <Navbar />
       <main>
         <Hero />
+        <BrandShowcase />
         <Services />
         <Infrastructure />
         <Capability />

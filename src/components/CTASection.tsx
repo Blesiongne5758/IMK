@@ -23,7 +23,8 @@ export default function CTASection() {
             Siap Membangun Sistem yang Skalabel, Aman, dan Siap untuk Masa Depan?
           </h2>
           <p className="text-text-secondary text-lg max-w-2xl mx-auto mb-10 leading-relaxed">
-            Jadwalkan sesi konsultasi arsitektur gratis 60 menit dengan senior engineer kami. 
+            Jadwalkan sesi konsultasi arsitektur gratis 60 menit dengan senior engineer 
+            <span className="text-text-primary font-medium"> Inti Mutiara Kreasindo</span>. 
             Kami akan mengevaluasi kebutuhan teknis Anda dan memberikan rekomendasi konkret — bukan sales pitch.
           </p>
 
