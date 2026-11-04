@@ -12,6 +12,13 @@ import {
   Check,
   AlertCircle,
 } from 'lucide-react';
+import { 
+  sanitizeInput, 
+  isValidEmail, 
+  isValidPhone, 
+  isValidUrl, 
+  containsMaliciousContent 
+} from '../lib/security';
 
 interface JobApplication {
   id: string;
@@ -149,19 +156,70 @@ export default function JobsPage() {
   function validate(): boolean {
     const newErrors: Partial<Record<keyof FormState, string>> = {};
     
-    if (!form.fullName.trim()) newErrors.fullName = 'Nama lengkap wajib diisi';
+    // Full name validation with length check
+    if (!form.fullName.trim()) {
+      newErrors.fullName = 'Nama lengkap wajib diisi';
+    } else if (form.fullName.trim().length > 100) {
+      newErrors.fullName = 'Nama lengkap maksimal 100 karakter';
+    } else if (containsMaliciousContent(form.fullName)) {
+      newErrors.fullName = 'Input mengandung karakter yang tidak valid';
+    }
+    
+    // Email validation with security utility
     if (!form.email.trim()) {
       newErrors.email = 'Email wajib diisi';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    } else if (!isValidEmail(form.email)) {
       newErrors.email = 'Format email tidak valid';
     }
-    if (!form.phone.trim()) newErrors.phone = 'No. telepon wajib diisi';
+    
+    // Phone validation with security utility
+    if (!form.phone.trim()) {
+      newErrors.phone = 'No. telepon wajib diisi';
+    } else if (!isValidPhone(form.phone)) {
+      newErrors.phone = 'Format nomor telepon tidak valid';
+    }
+    
+    // Position validation
     if (!form.position) newErrors.position = 'Posisi yang dilamar wajib dipilih';
+    
+    // Education validation
     if (!form.degree) newErrors.degree = 'Jenjang pendidikan wajib diisi';
-    if (!form.major.trim()) newErrors.major = 'Jurusan wajib diisi';
-    if (!form.university.trim()) newErrors.university = 'Universitas wajib diisi';
+    if (!form.major.trim()) {
+      newErrors.major = 'Jurusan wajib diisi';
+    } else if (containsMaliciousContent(form.major)) {
+      newErrors.major = 'Input mengandung karakter yang tidak valid';
+    }
+    if (!form.university.trim()) {
+      newErrors.university = 'Universitas wajib diisi';
+    } else if (containsMaliciousContent(form.university)) {
+      newErrors.university = 'Input mengandung karakter yang tidak valid';
+    }
     if (!form.graduationYear) newErrors.graduationYear = 'Tahun lulus wajib diisi';
+    
+    // Skills validation
     if (form.skills.length === 0) newErrors.skills = 'Pilih minimal 1 skill';
+    
+    // URL validation with security utility
+    if (form.portfolioUrl && !isValidUrl(form.portfolioUrl)) {
+      newErrors.portfolioUrl = 'Format URL portfolio tidak valid (hanya http/https)';
+    }
+    if (form.githubUrl && !isValidUrl(form.githubUrl)) {
+      newErrors.githubUrl = 'Format URL GitHub tidak valid (hanya http/https)';
+    }
+    if (form.linkedinUrl && !isValidUrl(form.linkedinUrl)) {
+      newErrors.linkedinUrl = 'Format URL LinkedIn tidak valid (hanya http/https)';
+    }
+    if (form.cvUrl && !isValidUrl(form.cvUrl)) {
+      newErrors.cvUrl = 'Format URL CV tidak valid (hanya http/https)';
+    }
+    
+    // Cover letter validation
+    if (form.coverLetter && containsMaliciousContent(form.coverLetter)) {
+      newErrors.coverLetter = 'Cover letter mengandung karakter yang tidak valid';
+    }
+    if (form.experience && containsMaliciousContent(form.experience)) {
+      newErrors.experience = 'Pengalaman mengandung karakter yang tidak valid';
+    }
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -171,27 +229,28 @@ export default function JobsPage() {
     e.preventDefault();
     if (!validate()) return;
 
+    // Sanitize all inputs before submission
     const application: JobApplication = {
       id: `app_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
-      fullName: form.fullName.trim(),
-      email: form.email.trim(),
-      phone: form.phone.trim(),
-      address: form.address.trim(),
+      fullName: sanitizeInput(form.fullName.trim()),
+      email: form.email.trim().toLowerCase(),
+      phone: form.phone.trim().replace(/[\s\-\(\)]/g, ''),
+      address: sanitizeInput(form.address.trim()),
       position: form.position,
       education: {
         degree: form.degree,
-        major: form.major.trim(),
-        university: form.university.trim(),
+        major: sanitizeInput(form.major.trim()),
+        university: sanitizeInput(form.university.trim()),
         graduationYear: form.graduationYear,
         gpa: form.gpa.trim(),
       },
-      experience: form.experience.trim(),
+      experience: sanitizeInput(form.experience.trim()),
       skills: form.skills,
       portfolioUrl: form.portfolioUrl.trim(),
       githubUrl: form.githubUrl.trim(),
       linkedinUrl: form.linkedinUrl.trim(),
       cvUrl: form.cvUrl.trim(),
-      coverLetter: form.coverLetter.trim(),
+      coverLetter: sanitizeInput(form.coverLetter.trim()),
       submittedAt: new Date().toISOString(),
     };
 

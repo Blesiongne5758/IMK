@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff, AlertCircle } from 'lucide-react';
-import { login } from '../lib/auth';
+import { login, isDemoModeEnabled } from '../lib/auth';
 
 export default function EOfficeLoginPage() {
   const navigate = useNavigate();
@@ -105,26 +105,28 @@ export default function EOfficeLoginPage() {
             </button>
           </form>
 
-          {/* Demo Credentials */}
-          <div className="mt-6 pt-6 border-t border-white/[0.06]">
-            <p className="text-xs text-text-secondary mb-3 text-center">
-              Demo Credentials:
-            </p>
-            <div className="space-y-2 text-xs">
-              <div className="flex items-center justify-between p-2 rounded bg-surface-elevated/50">
-                <span className="text-text-secondary">Admin:</span>
-                <code className="text-cyan font-mono">admin@imk.co.id / admin123</code>
-              </div>
-              <div className="flex items-center justify-between p-2 rounded bg-surface-elevated/50">
-                <span className="text-text-secondary">Manager:</span>
-                <code className="text-cyan font-mono">manager@imk.co.id / manager123</code>
-              </div>
-              <div className="flex items-center justify-between p-2 rounded bg-surface-elevated/50">
-                <span className="text-text-secondary">Staff:</span>
-                <code className="text-cyan font-mono">staff@imk.co.id / staff123</code>
+          {/* Demo Credentials - Only shown in development mode */}
+          {isDemoModeEnabled() && (
+            <div className="mt-6 pt-6 border-t border-white/[0.06]">
+              <p className="text-xs text-text-secondary mb-3 text-center">
+                Demo Credentials (Development Only):
+              </p>
+              <div className="space-y-2 text-xs">
+                <div className="flex items-center justify-between p-2 rounded bg-surface-elevated/50">
+                  <span className="text-text-secondary">Admin:</span>
+                  <code className="text-cyan font-mono">admin@imk.co.id / admin123</code>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded bg-surface-elevated/50">
+                  <span className="text-text-secondary">Manager:</span>
+                  <code className="text-cyan font-mono">manager@imk.co.id / manager123</code>
+                </div>
+                <div className="flex items-center justify-between p-2 rounded bg-surface-elevated/50">
+                  <span className="text-text-secondary">Staff:</span>
+                  <code className="text-cyan font-mono">staff@imk.co.id / staff123</code>
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
 
         {/* Footer */}

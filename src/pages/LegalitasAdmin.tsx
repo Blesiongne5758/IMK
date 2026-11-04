@@ -11,6 +11,7 @@ import {
   EyeOff,
   Loader2,
 } from 'lucide-react';
+import { validateFile, sanitizeInput } from '../lib/security';
 
 interface LegalDocument {
   id: string;
@@ -84,28 +85,29 @@ export default function LegalitasAdmin() {
     }
   }, []);
 
-  // Handle file upload - convert to base64 for localStorage storage
+  // Handle file upload with enhanced security validation
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Validate file type
-    const validTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp'];
-    if (!validTypes.includes(file.type)) {
-      alert('Format file tidak didukung. Gunakan JPG, PNG, atau WebP.');
-      return;
-    }
-
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      alert('Ukuran file terlalu besar. Maksimal 5MB.');
-      return;
-    }
-
     setUploading(true);
 
     try {
-      // Convert to base64
+      // Enhanced file validation using security utility
+      const allowedTypes = ['jpg', 'jpeg', 'png', 'webp'];
+      const validation = await validateFile(file, allowedTypes, 5);
+      
+      if (!validation.valid) {
+        alert(validation.error || 'File tidak valid');
+        setUploading(false);
+        // Reset file input
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
+        return;
+      }
+
+      // Convert to base64 for localStorage storage
       const reader = new FileReader();
       reader.onload = () => {
         const base64 = reader.result as string;
@@ -129,10 +131,18 @@ export default function LegalitasAdmin() {
       return;
     }
 
+    // Sanitize inputs
+    const sanitizedData = {
+      ...formData,
+      title: sanitizeInput(formData.title.trim()),
+      description: sanitizeInput(formData.description.trim()),
+      documentNumber: formData.documentNumber ? sanitizeInput(formData.documentNumber.trim()) : undefined,
+    };
+
     if (editingDoc) {
       const updated = documents.map((doc) =>
         doc.id === editingDoc.id
-          ? { ...doc, ...formData }
+          ? { ...doc, ...sanitizedData }
           : doc
       );
       setDocuments(updated);
@@ -140,7 +150,7 @@ export default function LegalitasAdmin() {
     } else {
       const newDoc: LegalDocument = {
         id: `doc_${Date.now()}`,
-        ...formData,
+        ...sanitizedData,
         createdBy: 'admin@imk.co.id',
         createdAt: new Date().toISOString(),
       };

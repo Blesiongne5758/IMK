@@ -15,6 +15,7 @@ import {
   Plus,
   Trash2,
 } from 'lucide-react';
+import { sanitizeInput, isValidEmail, isValidPhone, containsMaliciousContent } from '../lib/security';
 
 interface Consultation {
   id: string;
@@ -203,15 +204,44 @@ export default function ConsultationScheduler() {
 
   function validate(): boolean {
     const newErrors: Partial<Record<keyof FormState, string>> = {};
+    
     if (!form.date) newErrors.date = 'Tanggal wajib diisi';
     if (!form.time) newErrors.time = 'Waktu wajib diisi';
-    if (!form.clientName.trim()) newErrors.clientName = 'Nama klien wajib diisi';
-    if (!form.position.trim()) newErrors.position = 'Jabatan wajib diisi';
-    if (!form.companyName.trim()) newErrors.companyName = 'Nama perusahaan wajib diisi';
-    if (!form.contactNumber.trim()) newErrors.contactNumber = 'No. kontak wajib diisi';
+    
+    // Client name validation with security check
+    if (!form.clientName.trim()) {
+      newErrors.clientName = 'Nama klien wajib diisi';
+    } else if (form.clientName.trim().length > 100) {
+      newErrors.clientName = 'Nama klien maksimal 100 karakter';
+    } else if (containsMaliciousContent(form.clientName)) {
+      newErrors.clientName = 'Input mengandung karakter yang tidak valid';
+    }
+    
+    // Position validation
+    if (!form.position.trim()) {
+      newErrors.position = 'Jabatan wajib diisi';
+    } else if (containsMaliciousContent(form.position)) {
+      newErrors.position = 'Input mengandung karakter yang tidak valid';
+    }
+    
+    // Company name validation
+    if (!form.companyName.trim()) {
+      newErrors.companyName = 'Nama perusahaan wajib diisi';
+    } else if (containsMaliciousContent(form.companyName)) {
+      newErrors.companyName = 'Input mengandung karakter yang tidak valid';
+    }
+    
+    // Contact number validation with security utility
+    if (!form.contactNumber.trim()) {
+      newErrors.contactNumber = 'No. kontak wajib diisi';
+    } else if (!isValidPhone(form.contactNumber)) {
+      newErrors.contactNumber = 'Format nomor telepon tidak valid';
+    }
+    
+    // Email validation with security utility
     if (!form.email.trim()) {
       newErrors.email = 'Email wajib diisi';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+    } else if (!isValidEmail(form.email)) {
       newErrors.email = 'Format email tidak valid';
     }
 
@@ -241,15 +271,16 @@ export default function ConsultationScheduler() {
     e.preventDefault();
     if (!validate()) return;
 
+    // Sanitize all inputs before saving
     const newConsultation: Consultation = {
       id: `c_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
       date: form.date,
       time: form.time,
-      clientName: form.clientName.trim(),
-      position: form.position.trim(),
-      companyName: form.companyName.trim(),
-      contactNumber: form.contactNumber.trim(),
-      email: form.email.trim(),
+      clientName: sanitizeInput(form.clientName.trim()),
+      position: sanitizeInput(form.position.trim()),
+      companyName: sanitizeInput(form.companyName.trim()),
+      contactNumber: form.contactNumber.trim().replace(/[\s\-\(\)]/g, ''),
+      email: form.email.trim().toLowerCase(),
       createdAt: new Date().toISOString(),
     };
 
