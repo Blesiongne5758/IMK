@@ -18,10 +18,15 @@ import {
   AlertCircle,
   TrendingUp,
   Shield,
+  Briefcase,
+  BarChart3,
+  UserCheck,
+  ClipboardList,
 } from 'lucide-react';
 import { getCurrentUser, logout, refreshSession, User as UserType } from '../lib/auth';
 import { isSupabaseConfigured } from '../lib/supabase';
 import { getDashboardStats, getDispositions, getNotifications, DashboardStats } from '../lib/supabase-service';
+import DropdownMenu, { MenuItem } from '../components/DropdownMenu';
 
 interface StatCard {
   icon: React.ElementType;
@@ -133,15 +138,35 @@ export default function EOfficeDashboard() {
     },
   ];
 
-  const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: TrendingUp },
+  const menuItems: MenuItem[] = [
+    { id: 'dashboard', label: 'Dashboard', icon: TrendingUp, path: '/eoffice' },
     { id: 'incoming', label: 'Surat Masuk', icon: Mail },
     { id: 'outgoing', label: 'Surat Keluar', icon: Send },
     { id: 'disposition', label: 'Disposisi', icon: FileText },
     { id: 'agenda', label: 'Agenda', icon: Calendar },
     { id: 'archive', label: 'Arsip Digital', icon: Archive },
-    { id: 'legalitas', label: 'Legalitas', icon: Shield },
-    { id: 'event', label: 'Event', icon: Users },
+    { 
+      id: 'lowongan', 
+      label: 'Lowongan', 
+      icon: Briefcase,
+      children: [
+        { id: 'lowongan-list', label: 'Daftar Lamaran', icon: ClipboardList, path: '/eoffice/lowongan' },
+        { id: 'lowongan-report', label: 'Laporan', icon: BarChart3, path: '/eoffice/lowongan/report' },
+        { id: 'lowongan-interview', label: 'Jadwal Wawancara', icon: Calendar, path: '/eoffice/lowongan/interview' },
+      ]
+    },
+    { 
+      id: 'event', 
+      label: 'Event', 
+      icon: Users,
+      children: [
+        { id: 'event-create', label: 'Buat Event', icon: Plus, path: '/eoffice/event' },
+        { id: 'event-list', label: 'Daftar Event', icon: Calendar, path: '/eoffice/event/list' },
+        { id: 'event-participants', label: 'Peserta', icon: UserCheck, path: '/eoffice/event/participants' },
+        { id: 'event-committee', label: 'Panitia', icon: Users, path: '/eoffice/event/committee' },
+      ]
+    },
+    { id: 'legalitas', label: 'Legalitas', icon: Shield, path: '/eoffice/legalitas' },
   ];
 
   return (
