@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Menu, X } from 'lucide-react';
-import Logo from './Logo';
 
 const navLinks = [
   { label: 'Layanan', href: '#services' },
@@ -20,16 +19,13 @@ export default function Navbar() {
       <div className="mx-auto max-w-7xl px-6 lg:px-8">
         <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <a href="#" className="flex items-center gap-3 group">
-            <Logo variant="icon" size={36} />
-            <div className="flex flex-col">
-              <span className="font-display text-base font-semibold tracking-tight text-text-primary leading-tight">
-                Inti Mutiara Kreasindo
-              </span>
-              <span className="text-[9px] text-text-secondary/60 uppercase tracking-[0.2em] leading-none mt-0.5">
-                Technology & AI Solutions
-              </span>
+          <a href="#" className="flex items-center gap-2.5 group">
+            <div className="relative h-8 w-8 rounded-md border border-cyan/30 bg-cyan/5 flex items-center justify-center transition-colors duration-300 group-hover:border-cyan/60">
+              <span className="font-display text-sm font-bold text-cyan">N</span>
             </div>
+            <span className="font-display text-lg font-semibold tracking-tight text-text-primary">
+              NexaCore
+            </span>
           </a>
 
           {/* Desktop Links */}
