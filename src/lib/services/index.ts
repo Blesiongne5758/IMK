@@ -11,3 +11,7 @@ export * as EventService from './eventService';
 export * as NotificationService from './notificationService';
 export * as ActivityLogService from './activityLogService';
 export * as DashboardService from './dashboardService';
+export * as ProjectService from './projectService';
+export * as LegalDocumentService from './legalDocumentService';
+export * as ConsultationService from './consultationService';
+export * as JobApplicationService from './jobApplicationService';

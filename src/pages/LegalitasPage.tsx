@@ -13,6 +13,7 @@ import {
   CheckCircle,
   AlertCircle,
 } from 'lucide-react';
+import { LegalDocumentService } from '../lib/services';
 
 interface LegalDocument {
   id: string;
@@ -25,14 +26,14 @@ interface LegalDocument {
   expiryDate?: string;
 }
 
-// Demo data - akan diambil dari Supabase di production
-const demoDocuments: LegalDocument[] = [
+// Default documents for demo/fallback
+const defaultDocuments: LegalDocument[] = [
   {
     id: '1',
     title: 'Akta Pendirian Perusahaan',
     description: 'Akta Notaris Pendirian PT. Inti Mutiara Kreasindo',
     category: 'legal',
-    imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%230F0F12"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="20"%3EAkta Pendirian%3C/text%3E%3C/svg%3E',
+    imageUrl: 'image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%230F0F12"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="20"%3EAkta Pendirian%3C/text%3E%3C/svg%3E',
     documentNumber: 'No. 45/2018/NOT-JKT',
     issuedDate: '2018-03-15',
   },
@@ -41,7 +42,7 @@ const demoDocuments: LegalDocument[] = [
     title: 'Nomor Induk Berusaha (NIB)',
     description: 'NIB dari OSS (Online Single Submission)',
     category: 'legal',
-    imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%230F0F12"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="20"%3ENIB Certificate%3C/text%3E%3C/svg%3E',
+    imageUrl: 'image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%230F0F12"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="20"%3ENIB Certificate%3C/text%3E%3C/svg%3E',
     documentNumber: '1234567890123',
     issuedDate: '2020-06-10',
   },
@@ -50,7 +51,7 @@ const demoDocuments: LegalDocument[] = [
     title: 'NPWP Perusahaan',
     description: 'Nomor Pokok Wajib Pajak PT. Inti Mutiara Kreasindo',
     category: 'legal',
-    imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%230F0F12"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="20"%3ENPWP%3C/text%3E%3C/svg%3E',
+    imageUrl: 'image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%230F0F12"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="20"%3ENPWP%3C/text%3E%3C/svg%3E',
     documentNumber: '01.234.567.8-901.000',
     issuedDate: '2018-04-01',
   },
@@ -59,7 +60,7 @@ const demoDocuments: LegalDocument[] = [
     title: 'ISO 27001:2022',
     description: 'Sertifikasi Information Security Management System',
     category: 'certificate',
-    imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%230F0F12"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="20"%3EISO 27001%3C/text%3E%3C/svg%3E',
+    imageUrl: 'image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%230F0F12"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="20"%3EISO 27001%3C/text%3E%3C/svg%3E',
     issuedDate: '2022-01-15',
     expiryDate: '2025-01-14',
   },
@@ -68,7 +69,7 @@ const demoDocuments: LegalDocument[] = [
     title: 'SOC 2 Type II',
     description: 'Service Organization Control 2 Certification',
     category: 'certificate',
-    imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%230F0F12"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="20"%3ESOC 2 Type II%3C/text%3E%3C/svg%3E',
+    imageUrl: 'image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%230F0F12"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="20"%3ESOC 2 Type II%3C/text%3E%3C/svg%3E',
     issuedDate: '2023-03-20',
     expiryDate: '2024-03-19',
   },
@@ -77,7 +78,7 @@ const demoDocuments: LegalDocument[] = [
     title: 'AWS Advanced Partner',
     description: 'AWS Advanced Technology Partner Certification',
     category: 'certificate',
-    imageUrl: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%230F0F12"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="20"%3EAWS Partner%3C/text%3E%3C/svg%3E',
+    imageUrl: 'image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="400" height="300" fill="%230F0F12"%3E%3Crect width="400" height="300"/%3E%3Ctext x="50%25" y="50%25" text-anchor="middle" fill="%2300E5FF" font-size="20"%3EAWS Partner%3C/text%3E%3C/svg%3E',
     issuedDate: '2023-06-01',
   },
 ];
@@ -138,54 +139,64 @@ const organizationStructure = [
 ];
 
 export default function LegalitasPage() {
-  const [documents] = useState<LegalDocument[]>(demoDocuments);
+  const [documents, setDocuments] = useState<LegalDocument[]>(defaultDocuments);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchDocuments = async () => {
+      try {
+        const fetchedDocs = await LegalDocumentService.getPublicLegalDocuments();
+        if (fetchedDocs.length > 0) {
+          setDocuments(fetchedDocs);
+        }
+      } catch (error) {
+        console.error('Error fetching legal documents:', error);
+        // Use default documents on error
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchDocuments();
+  }, []);
 
   // Anti-screenshot protection
   useEffect(() => {
-    // Disable right-click
     const handleContextMenu = (e: MouseEvent) => {
       e.preventDefault();
       return false;
     };
 
-    // Disable drag
     const handleDragStart = (e: DragEvent) => {
       e.preventDefault();
       return false;
     };
 
-    // Disable print screen and common shortcuts
     const handleKeyDown = (e: KeyboardEvent) => {
-      // Print Screen
       if (e.key === 'PrintScreen') {
         e.preventDefault();
         alert('Screenshot tidak diizinkan untuk konten ini');
         return false;
       }
-      // Ctrl+P (Print)
       if (e.ctrlKey && e.key === 'p') {
         e.preventDefault();
         alert('Print tidak diizinkan untuk konten ini');
         return false;
       }
-      // Ctrl+S (Save)
       if (e.ctrlKey && e.key === 's') {
         e.preventDefault();
         return false;
       }
-      // Ctrl+Shift+I (Dev Tools)
       if (e.ctrlKey && e.shiftKey && e.key === 'I') {
         e.preventDefault();
         return false;
       }
-      // F12
       if (e.key === 'F12') {
         e.preventDefault();
         return false;
       }
     };
 
-    // Disable copy
     const handleCopy = (e: ClipboardEvent) => {
       e.preventDefault();
       return false;
@@ -393,66 +404,72 @@ export default function LegalitasPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {legalDocs.map((doc) => (
-              <div
-                key={doc.id}
-                className="group relative border border-white/[0.06] rounded-xl bg-surface/40 overflow-hidden transition-all duration-300 hover:border-cyan/30"
-              >
-                {/* Image with watermark */}
-                <div className="relative aspect-[4/3] bg-surface-elevated overflow-hidden select-none pointer-events-none">
-                  <img
-                    src={doc.imageUrl}
-                    alt={doc.title}
-                    className="w-full h-full object-cover opacity-60"
-                    draggable={false}
-                    onContextMenu={(e) => e.preventDefault()}
-                  />
-                  {/* Watermark overlay */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="text-center">
-                      <div className="font-display text-2xl font-bold text-cyan/20 rotate-[-15deg] whitespace-nowrap">
-                        PT. INTI MUTIARA KREASINDO
-                      </div>
-                      <div className="text-xs text-cyan/15 mt-2">
-                        CONFIDENTIAL DOCUMENT
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-text-secondary">Loading documents...</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {legalDocs.map((doc) => (
+                <div
+                  key={doc.id}
+                  className="group relative border border-white/[0.06] rounded-xl bg-surface/40 overflow-hidden transition-all duration-300 hover:border-cyan/30"
+                >
+                  {/* Image with watermark */}
+                  <div className="relative aspect-[4/3] bg-surface-elevated overflow-hidden select-none pointer-events-none">
+                    <img
+                      src={doc.imageUrl}
+                      alt={doc.title}
+                      className="w-full h-full object-cover opacity-60"
+                      draggable={false}
+                      onContextMenu={(e) => e.preventDefault()}
+                    />
+                    {/* Watermark overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="text-center">
+                        <div className="font-display text-2xl font-bold text-cyan/20 rotate-[-15deg] whitespace-nowrap">
+                          PT. INTI MUTIARA KREASINDO
+                        </div>
+                        <div className="text-xs text-cyan/15 mt-2">
+                          CONFIDENTIAL DOCUMENT
+                        </div>
                       </div>
                     </div>
+                    {/* Pattern overlay */}
+                    <div className="absolute inset-0 opacity-10" style={{
+                      backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,229,255,0.1) 10px, rgba(0,229,255,0.1) 11px)'
+                    }}></div>
                   </div>
-                  {/* Pattern overlay */}
-                  <div className="absolute inset-0 opacity-10" style={{
-                    backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(0,229,255,0.1) 10px, rgba(0,229,255,0.1) 11px)'
-                  }}></div>
-                </div>
 
-                {/* Content */}
-                <div className="p-5">
-                  <h3 className="font-display text-base font-semibold text-text-primary mb-2">
-                    {doc.title}
-                  </h3>
-                  <p className="text-xs text-text-secondary mb-3">{doc.description}</p>
-                  {doc.documentNumber && (
-                    <div className="flex items-center gap-2 text-xs">
-                      <FileText size={12} className="text-cyan" />
-                      <span className="font-mono text-text-secondary">{doc.documentNumber}</span>
-                    </div>
-                  )}
-                  {doc.issuedDate && (
-                    <div className="flex items-center gap-2 text-xs mt-1">
-                      <Calendar size={12} className="text-text-secondary/50" />
-                      <span className="text-text-secondary/70">
-                        Terbit: {new Date(doc.issuedDate).toLocaleDateString('id-ID', {
-                          day: 'numeric',
-                          month: 'long',
-                          year: 'numeric',
-                        })}
-                      </span>
-                    </div>
-                  )}
+                  {/* Content */}
+                  <div className="p-5">
+                    <h3 className="font-display text-base font-semibold text-text-primary mb-2">
+                      {doc.title}
+                    </h3>
+                    <p className="text-xs text-text-secondary mb-3">{doc.description}</p>
+                    {doc.documentNumber && (
+                      <div className="flex items-center gap-2 text-xs">
+                        <FileText size={12} className="text-cyan" />
+                        <span className="font-mono text-text-secondary">{doc.documentNumber}</span>
+                      </div>
+                    )}
+                    {doc.issuedDate && (
+                      <div className="flex items-center gap-2 text-xs mt-1">
+                        <Calendar size={12} className="text-text-secondary/50" />
+                        <span className="text-text-secondary/70">
+                          Terbit: {new Date(doc.issuedDate).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'long',
+                            year: 'numeric',
+                          })}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
@@ -474,73 +491,79 @@ export default function LegalitasPage() {
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {certificates.map((cert) => (
-              <div
-                key={cert.id}
-                className="group relative border border-white/[0.06] rounded-xl bg-surface/40 overflow-hidden transition-all duration-300 hover:border-indigo/30"
-              >
-                {/* Image with watermark */}
-                <div className="relative aspect-[4/3] bg-surface-elevated overflow-hidden select-none pointer-events-none">
-                  <img
-                    src={cert.imageUrl}
-                    alt={cert.title}
-                    className="w-full h-full object-cover opacity-60"
-                    draggable={false}
-                    onContextMenu={(e) => e.preventDefault()}
-                  />
-                  {/* Watermark */}
-                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                    <div className="text-center">
-                      <div className="font-display text-2xl font-bold text-indigo/20 rotate-[-15deg] whitespace-nowrap">
-                        PT. INTI MUTIARA KREASINDO
-                      </div>
-                      <div className="text-xs text-indigo/15 mt-2">
-                        CERTIFIED DOCUMENT
+          {loading ? (
+            <div className="text-center py-12">
+              <p className="text-text-secondary">Loading certificates...</p>
+            </div>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {certificates.map((cert) => (
+                <div
+                  key={cert.id}
+                  className="group relative border border-white/[0.06] rounded-xl bg-surface/40 overflow-hidden transition-all duration-300 hover:border-indigo/30"
+                >
+                  {/* Image with watermark */}
+                  <div className="relative aspect-[4/3] bg-surface-elevated overflow-hidden select-none pointer-events-none">
+                    <img
+                      src={cert.imageUrl}
+                      alt={cert.title}
+                      className="w-full h-full object-cover opacity-60"
+                      draggable={false}
+                      onContextMenu={(e) => e.preventDefault()}
+                    />
+                    {/* Watermark */}
+                    <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                      <div className="text-center">
+                        <div className="font-display text-2xl font-bold text-indigo/20 rotate-[-15deg] whitespace-nowrap">
+                          PT. INTI MUTIARA KREASINDO
+                        </div>
+                        <div className="text-xs text-indigo/15 mt-2">
+                          CERTIFIED DOCUMENT
+                        </div>
                       </div>
                     </div>
+                    <div className="absolute inset-0 opacity-10" style={{
+                      backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(99,102,241,0.1) 10px, rgba(99,102,241,0.1) 11px)'
+                    }}></div>
                   </div>
-                  <div className="absolute inset-0 opacity-10" style={{
-                    backgroundImage: 'repeating-linear-gradient(45deg, transparent, transparent 10px, rgba(99,102,241,0.1) 10px, rgba(99,102,241,0.1) 11px)'
-                  }}></div>
-                </div>
 
-                {/* Content */}
-                <div className="p-5">
-                  <h3 className="font-display text-base font-semibold text-text-primary mb-2">
-                    {cert.title}
-                  </h3>
-                  <p className="text-xs text-text-secondary mb-3">{cert.description}</p>
-                  <div className="flex items-center gap-2 text-xs">
-                    <Shield size={12} className="text-emerald-400" />
-                    <span className="text-emerald-400 font-medium">Aktif</span>
-                  </div>
-                  {cert.issuedDate && (
-                    <div className="flex items-center gap-2 text-xs mt-1">
-                      <Calendar size={12} className="text-text-secondary/50" />
-                      <span className="text-text-secondary/70">
-                        {new Date(cert.issuedDate).toLocaleDateString('id-ID', {
-                          day: 'numeric',
-                          month: 'short',
-                          year: 'numeric',
-                        })}
-                        {cert.expiryDate && (
-                          <>
-                            {' - '}
-                            {new Date(cert.expiryDate).toLocaleDateString('id-ID', {
-                              day: 'numeric',
-                              month: 'short',
-                              year: 'numeric',
-                            })}
-                          </>
-                        )}
-                      </span>
+                  {/* Content */}
+                  <div className="p-5">
+                    <h3 className="font-display text-base font-semibold text-text-primary mb-2">
+                      {cert.title}
+                    </h3>
+                    <p className="text-xs text-text-secondary mb-3">{cert.description}</p>
+                    <div className="flex items-center gap-2 text-xs">
+                      <Shield size={12} className="text-emerald-400" />
+                      <span className="text-emerald-400 font-medium">Aktif</span>
                     </div>
-                  )}
+                    {cert.issuedDate && (
+                      <div className="flex items-center gap-2 text-xs mt-1">
+                        <Calendar size={12} className="text-text-secondary/50" />
+                        <span className="text-text-secondary/70">
+                          {new Date(cert.issuedDate).toLocaleDateString('id-ID', {
+                            day: 'numeric',
+                            month: 'short',
+                            year: 'numeric',
+                          })}
+                          {cert.expiryDate && (
+                            <>
+                              {' - '}
+                              {new Date(cert.expiryDate).toLocaleDateString('id-ID', {
+                                day: 'numeric',
+                                month: 'short',
+                                year: 'numeric',
+                              })}
+                            </>
+                          )}
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 

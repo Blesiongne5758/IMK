@@ -200,6 +200,65 @@ CREATE TABLE public.event_committees (
   UNIQUE(event_id, user_id)
 );
 
+-- 15. PROJECTS TABLE (Showcase)
+CREATE TABLE public.projects (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  client TEXT NOT NULL,
+  category TEXT NOT NULL,
+  description TEXT NOT NULL,
+  tech_stack TEXT[] DEFAULT '{}',
+  icon TEXT,
+  color TEXT,
+  image_url TEXT,
+  project_url TEXT,
+  start_date DATE,
+  end_date DATE,
+  is_published BOOLEAN DEFAULT true,
+  order_index INTEGER DEFAULT 0,
+  created_by UUID REFERENCES public.profiles(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 16. CONSULTATIONS TABLE
+CREATE TABLE public.consultations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  date DATE NOT NULL,
+  time TEXT NOT NULL,
+  client_name TEXT NOT NULL,
+  position TEXT NOT NULL,
+  company_name TEXT NOT NULL,
+  contact_number TEXT NOT NULL,
+  email TEXT NOT NULL,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'confirmed', 'completed', 'cancelled')),
+  notes TEXT,
+  created_by UUID REFERENCES public.profiles(id),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- 17. JOB APPLICATIONS TABLE
+CREATE TABLE public.job_applications (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT NOT NULL,
+  address TEXT,
+  position TEXT NOT NULL,
+  education JSONB NOT NULL,
+  experience TEXT,
+  skills TEXT[] DEFAULT '{}',
+  portfolio_url TEXT,
+  github_url TEXT,
+  linkedin_url TEXT,
+  cv_url TEXT,
+  cover_letter TEXT,
+  status TEXT DEFAULT 'pending' CHECK (status IN ('pending', 'reviewed', 'interview', 'accepted', 'rejected')),
+  submitted_at TIMESTAMPTZ DEFAULT NOW(),
+  updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
 -- ============================================
 -- INDEXES FOR PERFORMANCE
 -- ============================================
@@ -230,6 +289,14 @@ CREATE INDEX idx_event_registrations_checked_in ON public.event_registrations(ch
 CREATE INDEX idx_event_committees_event_id ON public.event_committees(event_id);
 CREATE INDEX idx_event_committees_user_id ON public.event_committees(user_id);
 CREATE INDEX idx_event_committees_role ON public.event_committees(role);
+CREATE INDEX idx_projects_is_published ON public.projects(is_published);
+CREATE INDEX idx_projects_category ON public.projects(category);
+CREATE INDEX idx_projects_order ON public.projects(order_index);
+CREATE INDEX idx_consultations_date ON public.consultations(date);
+CREATE INDEX idx_consultations_status ON public.consultations(status);
+CREATE INDEX idx_job_applications_status ON public.job_applications(status);
+CREATE INDEX idx_job_applications_position ON public.job_applications(position);
+CREATE INDEX idx_job_applications_submitted_at ON public.job_applications(submitted_at);
 
 -- ============================================
 -- ROW LEVEL SECURITY (RLS) POLICIES
@@ -246,6 +313,9 @@ ALTER TABLE public.company_info ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.organization_structure ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.events ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.event_registrations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.projects ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.consultations ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.job_applications ENABLE ROW LEVEL SECURITY;
 
 -- Profiles: Users can read all profiles, update only their own
 CREATE POLICY "Profiles are viewable by everyone" ON public.profiles
@@ -379,6 +449,88 @@ CREATE POLICY "Event creators and admins can manage committees" ON public.event_
     )
   );
 
+-- Projects: Published projects viewable by everyone, admins can manage
+CREATE POLICY "Published projects are viewable by everyone" ON public.projects
+  FOR SELECT USING (is_published = true OR auth.role() = 'authenticated');
+
+CREATE POLICY "Authenticated users can create projects" ON public.projects
+  FOR INSERT WITH CHECK (auth.role() = 'authenticated');
+
+CREATE POLICY "Creators and admins can update projects" ON public.projects
+  FOR UPDATE USING (
+    auth.uid() = created_by OR
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Creators and admins can delete projects" ON public.projects
+  FOR DELETE USING (
+    auth.uid() = created_by OR
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+-- Consultations: Anyone can create, admins can view all
+CREATE POLICY "Consultations are viewable by creators and admins" ON public.consultations
+  FOR SELECT USING (
+    auth.uid() = created_by OR
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Anyone can create consultations" ON public.consultations
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Admins can update consultations" ON public.consultations
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Admins can delete consultations" ON public.consultations
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+-- Job Applications: Anyone can submit, admins can view all
+CREATE POLICY "Job applications are viewable by admins" ON public.job_applications
+  FOR SELECT USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Anyone can submit job applications" ON public.job_applications
+  FOR INSERT WITH CHECK (true);
+
+CREATE POLICY "Admins can update job applications" ON public.job_applications
+  FOR UPDATE USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
+CREATE POLICY "Admins can delete job applications" ON public.job_applications
+  FOR DELETE USING (
+    EXISTS (
+      SELECT 1 FROM public.profiles 
+      WHERE id = auth.uid() AND role = 'admin'
+    )
+  );
+
 -- ============================================
 -- FUNCTIONS & TRIGGERS
 -- ============================================
@@ -422,6 +574,18 @@ CREATE TRIGGER update_organization_structure_updated_at
 
 CREATE TRIGGER update_events_updated_at
   BEFORE UPDATE ON public.events
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_projects_updated_at
+  BEFORE UPDATE ON public.projects
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_consultations_updated_at
+  BEFORE UPDATE ON public.consultations
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
+
+CREATE TRIGGER update_job_applications_updated_at
+  BEFORE UPDATE ON public.job_applications
   FOR EACH ROW EXECUTE FUNCTION update_updated_at_column();
 
 -- Auto-create profile on user signup
