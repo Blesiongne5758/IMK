@@ -52,13 +52,13 @@ export default function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
-                  Blog Teknis
+                <Link to="/eoffice/login" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  E-Office
                 </Link>
               </li>
               <li>
-                <Link to="/" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
-                  Case Studies
+                <Link to="/jadwal" className="text-sm text-text-secondary hover:text-text-primary transition-colors duration-200">
+                  Jadwal Konsultasi
                 </Link>
               </li>
             </ul>

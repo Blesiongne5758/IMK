@@ -57,6 +57,14 @@ export default function Navbar() {
             >
               Lowongan
             </Link>
+            <Link
+              to="/eoffice/login"
+              className={`text-sm font-medium transition-colors duration-200 ${
+                location.pathname.startsWith('/eoffice') ? 'text-cyan' : 'text-text-secondary hover:text-text-primary'
+              }`}
+            >
+              E-Office
+            </Link>
           </div>
 
           {/* CTA */}
@@ -116,6 +124,15 @@ export default function Navbar() {
               onClick={() => setMobileOpen(false)}
             >
               Lowongan
+            </Link>
+            <Link
+              to="/eoffice/login"
+              className={`block text-sm font-medium transition-colors py-2 ${
+                location.pathname.startsWith('/eoffice') ? 'text-cyan' : 'text-text-secondary hover:text-text-primary'
+              }`}
+              onClick={() => setMobileOpen(false)}
+            >
+              E-Office
             </Link>
             <Link
               to="/jadwal"
